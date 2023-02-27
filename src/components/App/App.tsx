@@ -1,53 +1,48 @@
-import { useEffect, useState } from "react";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import React, {createContext, useState} from "react";
 import { ParentWindow } from "../../messaging/ParentWindow";
-import "./App.css";
+import { createTheme } from "@mui/material/styles";
+import {IAppStore} from "../../interfaces/appStore";
+import AuthStore from "../../stores/AuthStore";
+import Home from "../../pages/Home";
+import Login from "../../pages/Login";
+import { observer } from "mobx-react-lite";
 
-/*
-  Instantiate a new ParentWindow object.
-  This object will be used to send and receive messages from the parent window.
-*/
-const parentWindow = new ParentWindow();
+
+const store: IAppStore = {
+  'authStore':  new AuthStore(),
+  'parentWindow': new ParentWindow()
+}
+export const AppStoreContext = createContext(store);
 
 function App() {
-  const [message, setMessage] = useState("");
-  useEffect(() => {
-    /*
-      Register a callback function that will be called
-      when a message is received from the parent window.
-    */
-    parentWindow.onMessage((message) => {
-      console.log("Message received from parent window: ", message);
-      /*
-        Handle the message based on its type.
-        Each message type should be handled in a different case.
-
-        Create new message types in the messaging/messageTypes.ts file.
-      */
-      switch (message.type) {
-        case "CRYPTO_BUTTON_CLICKED":
-          setMessage(message.content.message);
-          break;
-      }
-    });
+  const theme = createTheme({
+    palette: {
+      primary: {
+        light: "#63b8ff",
+        main: "#0989e3",
+        dark: "#005db0",
+        contrastText: "#000",
+      },
+      secondary: {
+        main: "#089b0f",
+        light: "#16df59",
+        dark: "#008609",
+        contrastText: "#000",
+      },
+    },
   });
+  
+  const [appStore, setAppStore] = useState(store);
+
   return (
-    <div className="App">
-      <button
-        onClick={() => {
-          parentWindow.sendMessage({
-            type: "SCAN_DOM",
-            content: {
-              message: "Hello, parent!",
-            },
-          });
-        }}
-        style={{ margin: "0.5rem 0" }}
-      >
-        Scan channel
-      </button>
-      {message}
-    </div>
+    <ThemeProvider theme={theme}>
+    <AppStoreContext.Provider value={appStore}>
+    <CssBaseline />
+      {!!appStore.authStore.token ? <Home/> : <Login/>}
+    </AppStoreContext.Provider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+export default  observer(App);

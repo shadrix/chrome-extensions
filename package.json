@@ -37,6 +37,7 @@
     ]
   },
   "devDependencies": {
-    "@types/chrome": "0.0.200"
+    "@types/chrome": "0.0.200",
+    "@types/crypto-js": "^4.1.1"
   }
 }

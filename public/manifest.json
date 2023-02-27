@@ -4,6 +4,10 @@
   "author": "Shadrix",
   "version": "1.0",
   "manifest_version": 3,
+  "permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "icons": {
     "16": "logo192.png",
     "48": "logo192.png",

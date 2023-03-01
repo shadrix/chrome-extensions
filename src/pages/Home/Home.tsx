@@ -18,7 +18,7 @@ const Home: FC<any> = (): ReactElement => {
             break;
         }
         });
-    });
+    }, [parentWindow]);
 
     return (
         <Container>

@@ -6,7 +6,8 @@
   "manifest_version": 3,
   "permissions": [
     "https://*/*",
-    "http://*/*"
+    "http://*/*",
+    "storage"
   ],
   "icons": {
     "16": "logo192.png",

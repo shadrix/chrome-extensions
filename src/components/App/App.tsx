@@ -1,18 +1,17 @@
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import React, {createContext, useState} from "react";
+import { ThemeProvider } from "@mui/material";
+import {createContext, useState} from "react";
 import { ParentWindow } from "../../messaging/ParentWindow";
 import { createTheme } from "@mui/material/styles";
 import {IAppStore} from "../../interfaces/appStore";
 import AuthStore from "../../stores/AuthStore";
-import Home from "../../pages/Home";
-import Login from "../../pages/Login";
-import { observer } from "mobx-react-lite";
+import Layout from "../Layout";
 
 
 const store: IAppStore = {
   'authStore':  new AuthStore(),
   'parentWindow': new ParentWindow()
 }
+
 export const AppStoreContext = createContext(store);
 
 function App() {
@@ -37,12 +36,11 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <AppStoreContext.Provider value={appStore}>
-    <CssBaseline />
-      {!!appStore.authStore.token ? <Home/> : <Login/>}
-    </AppStoreContext.Provider>
+      <AppStoreContext.Provider value={appStore}>
+        <Layout/>
+      </AppStoreContext.Provider>
     </ThemeProvider>
   );
 }
 
-export default  observer(App);
+export default App;

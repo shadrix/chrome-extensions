@@ -1,4 +1,5 @@
 
+import { SignalMessage } from "../messaging/messageTypes";
 import { ReactApp } from "../messaging/ReactApp";
 
 let injectedDiv: HTMLDivElement | null = null;
@@ -46,55 +47,86 @@ if (window.self === window.top) {
   });
 }
 
+function scanChannel() {
+  const messageElements = Array.from(
+    document.querySelectorAll("div[id^='message']")
+  );
+
+  const filteredMessages = messageElements.filter((message) => {
+  const metaElement = message.querySelector(".text-content.with-meta");
+  const hashtagElement = message.querySelector(".text-entity-link");
+
+  if (
+    metaElement &&
+    metaElement.textContent?.includes("🚨") &&
+    hashtagElement &&
+    hashtagElement.textContent?.startsWith("#")
+  ) {
+    const limitOrderElement = metaElement.querySelector(":nth-child(3)");
+    const limitOrderText = limitOrderElement !== null ? limitOrderElement.nextSibling?.textContent?.trim() || "" : "";
+    const isLimitOrderExecuted = limitOrderText.includes("executed");
+
+    return !isLimitOrderExecuted;
+  }
+  
+    return false;
+  });
+
+  return filteredMessages;
+}
+
+function sendSignalInfo(reactApp: ReactApp, message: Element) {
+  
+  const signal : SignalMessage = {
+    content: {
+      price: "",
+      subType: "NONE",
+      type: "NONE",
+      symbol: ""
+    },
+    type: "CRYPTO_BUTTON_CLICKED"
+  };
+
+  signal.content.symbol = message.querySelector(".text-entity-link")!.textContent!.trim().substring(1);
+
+  const regex = /Price: \$([0-9]+\.[0-9]+)/; 
+  const matches = message.innerHTML.match(regex);
+  signal.content.price = matches![1];
+
+
+  if (message.innerHTML.match(/cancelled/) || message.innerHTML.match(/canceled/)) {
+    signal.content.subType = "CANCEL";
+  } else if (message.innerHTML.match(/Reopened/)) {
+    signal.content.subType = "REOPEN";
+  } 
+
+  if (message.innerHTML.match(/buy/)) {
+    signal.content.type = "BUY";
+  } else if (message.innerHTML.match(/sell/)) {
+    signal.content.type = "SELL";
+  } 
+
+  reactApp.sendMessage(signal!);
+}
+
 function startConnection(): void {
   const reactApp = new ReactApp(injectedIframe);
   reactApp.onMessage((message) => {
     switch (message.type) {
       case "SCAN_DOM":
-        const messageElements = Array.from(
-          document.querySelectorAll("div[id^='message']")
-        );
-      
-        const filteredMessages = messageElements.filter((message) => {
-          const metaElement = message.querySelector(".text-content.with-meta");
-          const hashtagElement = message.querySelector(".text-entity-link");
-        
-          if (
-            metaElement &&
-            metaElement.textContent?.includes("🚨") &&
-            hashtagElement &&
-            hashtagElement.textContent?.startsWith("#")
-          ) {
-            const limitOrderElement = metaElement.querySelector(":nth-child(3)");
-            const limitOrderText = limitOrderElement !== null ? limitOrderElement.nextSibling?.textContent?.trim() || "" : "";
-            const isLimitOrderExecuted = limitOrderText.includes("executed");
-        
-            return !isLimitOrderExecuted;
-          }
-        
-          return false;
-        });
-       
-        filteredMessages.forEach((messageElement) => {
-          if (!messageElement.querySelector(".crypto")) {
-            const button = document.createElement("button");
-            button.classList.add("crypto");
-            button.textContent = "Click me";
-            button.style.zIndex = "999999";
-            messageElement.insertBefore(button, messageElement.firstChild);
+        scanChannel().forEach((messageElement) => {
+            if (!messageElement.querySelector(".crypto")) {
+              const button = document.createElement("button");
+              button.classList.add("crypto");
+              button.textContent = "Click me";
+              button.style.zIndex = "999999";
+              messageElement.insertBefore(button, messageElement.firstChild);
 
-            button.addEventListener("click", () => {
-              const messageHTML = messageElement.outerHTML;
-              reactApp.sendMessage({
-                type: "CRYPTO_BUTTON_CLICKED",
-                content: {
-                  message: messageHTML,
-                },
+              button.addEventListener("click", () => {
+                sendSignalInfo(reactApp, messageElement);
               });
-            });
-          }
-        });
-
+            }
+          });
         break;
     }
   });

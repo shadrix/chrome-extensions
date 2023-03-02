@@ -9,7 +9,6 @@ import OrderList from "./components/OrderList";
 function Home() {
   const appStore = useContext(AppStoreContext);
 
-  const [html, setHtml] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,7 +18,7 @@ function Home() {
       switch (message.type) {
         case "CRYPTO_BUTTON_CLICKED":
           await appStore.domainStore.prefetch();
-          setHtml(message.content.message);
+          console.log(message);
           break;
       }
       setIsLoading(false);
@@ -100,7 +99,6 @@ function Home() {
         ) : (
           <>
             <OrderList orders={appStore.domainStore.orders} />
-            {html}
           </>
         )}
       </TabPanel>

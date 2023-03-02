@@ -1,38 +1,73 @@
-import {ReactElement, FC, useState, useEffect, useContext} from "react";
-import {Button, Container} from '@mui/material'
+import { useEffect, useContext, useState } from "react";
+import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
 import { AppStoreContext } from "../../components/App/App";
+import { observer } from "mobx-react-lite";
+import { TabPanel, a11yProps } from "./components/TabPanel";
 
+function Home() {
+  const appStore = useContext(AppStoreContext);
 
-const Home: FC<any> = (): ReactElement => {
-    const appStore = useContext(AppStoreContext);
-    const parentWindow = appStore.parentWindow;
-    
-    const [message, setMessage] = useState("");
-    
-    useEffect(() => {
-        parentWindow.onMessage((message) => {
+  const [html, setHtml] = useState("");
+  const [tabIndex, setTabIndex] = useState(0);
 
-        switch (message.type) {
-            case "CRYPTO_BUTTON_CLICKED":
-            setMessage(message.content.message);
-            break;
-        }
-        });
-    }, [parentWindow]);
+  useEffect(() => {
+    appStore.parentWindow.onMessage((message) => {
+      console.log(message);
+      switch (message.type) {
+        case "CRYPTO_BUTTON_CLICKED":
+          setHtml(message.content.message);
+          break;
+      }
+    });
+  }, []);
 
-    return (
-        <Container>
-            <Button variant="contained" onClick={() => {
-                    parentWindow.sendMessage({
-                        type: "SCAN_DOM",
-                        content: {
-                        message: "Hello, parent!",
-                        },
-                    });
-                    }} >Scan channel</Button>
-                {message}
-        </Container>
-    );
-};
+  return (
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={() => {
+            appStore.parentWindow.sendMessage({
+              type: "SCAN_DOM",
+            });
+          }}
+        >
+          Scan
+        </Button>
+        <Button
+          onClick={async (event) => {
+            await appStore.authStore.logout();
+          }}
+          variant="contained"
+        >
+          Logout
+        </Button>
+      </Box>
+      <Tabs
+        value={tabIndex}
+        onChange={(event: React.SyntheticEvent, newValue: number) => {
+          setTabIndex(newValue);
+        }}
+        aria-label="tabs"
+      >
+        <Tab label="Balance" {...a11yProps(0)} />
+        <Tab label="Trade History" {...a11yProps(1)} />
+      </Tabs>
+      <TabPanel value={tabIndex} index={0}>
+        {html}
+      </TabPanel>
+      <TabPanel value={tabIndex} index={1}>
+        Item Two
+      </TabPanel>
+    </>
+  );
+}
 
-export default Home;
+export default observer(Home);

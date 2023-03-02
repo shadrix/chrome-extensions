@@ -12,10 +12,10 @@ class AuthStore {
     async initAccountInfo() {
         const info = await api.accountInfo();
         if (info !== null) {
-             this.accountInfo = info as AccountInfo;
+            this.accountInfo = info as AccountInfo;
 
         } else {
-             console.error("Account info could not be retrieved");
+            this.accountInfo = null;
         }
     }
 
@@ -23,6 +23,12 @@ class AuthStore {
     async login(apiKey: string, apiSecret: string) { 
         localStorage.setItem("apiKey",  apiKey);
         localStorage.setItem("apiSecret",  apiSecret);
+        await this.initAccountInfo();
+    }
+
+    async logout() { 
+        localStorage.setItem("apiKey",  '');
+        localStorage.setItem("apiSecret",  '');
         await this.initAccountInfo();
     }
 }

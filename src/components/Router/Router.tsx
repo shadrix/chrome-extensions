@@ -16,7 +16,7 @@ function Router() {
       setIsLoading(false);
     };
     init();
-  }, [appStore.authStore]);
+  },[]);
 
   return (
     <>

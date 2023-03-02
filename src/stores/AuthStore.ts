@@ -4,6 +4,7 @@ import { AccountInfo } from "../interfaces/accountInfo";
 
 class AuthStore {
     accountInfo : AccountInfo | null = null;
+    accountTradeHistory : AccountInfo | null = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -13,7 +14,7 @@ class AuthStore {
         const info = await api.accountInfo();
         if (info !== null) {
             this.accountInfo = info as AccountInfo;
-
+            await api.accountTradeHistory();
         } else {
             this.accountInfo = null;
         }

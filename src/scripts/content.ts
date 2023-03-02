@@ -107,9 +107,27 @@ function startConnection(): void {
     */
     switch (message.type) {
       case "SCAN_DOM":
-        const messageElements = document.querySelectorAll("[id^='message']");
+        const messageElements = Array.from(
+          document.querySelectorAll("div[id^='message']")
+        );
 
-        messageElements.forEach((messageElement) => {
+        const filteredMessages = messageElements.filter((message) => {
+          const metaElement = message.querySelector(".text-content.with-meta");
+          const hashtagElement = message.querySelector(".text-entity-link");
+
+          if (
+            metaElement &&
+            metaElement.textContent?.includes("🚨") &&
+            hashtagElement &&
+            hashtagElement.textContent?.startsWith("#")
+          ) {
+            return true;
+          }
+
+          return false;
+        });
+
+        filteredMessages.forEach((messageElement) => {
           if (!messageElement.querySelector(".crypto")) {
             const button = document.createElement("button");
             button.classList.add("crypto");

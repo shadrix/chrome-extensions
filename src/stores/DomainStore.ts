@@ -1,20 +1,23 @@
 import { makeAutoObservable} from "mobx";
-import * as api from "../api/modules/account"
+import * as apiAccount from "../api/modules/account"
+import * as apiSpot from "../api/modules/spot"
 import { AccountInfo } from "../interfaces/accountInfo";
+import { Order } from "../interfaces/order";
 
-class AuthStore {
+
+class DomainStore {
     accountInfo : AccountInfo | null = null;
-    accountTradeHistory : AccountInfo | null = null;
+    orders : Order[] | null = null;
 
     constructor() {
         makeAutoObservable(this);
     }
 
-    async initAccountInfo() {
-        const info = await api.accountInfo();
+    async prefetch() {
+        const info = await apiAccount.accountInfo();
         if (info !== null) {
             this.accountInfo = info as AccountInfo;
-            await api.accountTradeHistory();
+            this.orders = await apiSpot.openOrders() as Order[];
         } else {
             this.accountInfo = null;
         }
@@ -24,14 +27,14 @@ class AuthStore {
     async login(apiKey: string, apiSecret: string) { 
         localStorage.setItem("apiKey",  apiKey);
         localStorage.setItem("apiSecret",  apiSecret);
-        await this.initAccountInfo();
+        await this.prefetch();
     }
 
     async logout() { 
         localStorage.setItem("apiKey",  '');
         localStorage.setItem("apiSecret",  '');
-        await this.initAccountInfo();
+        await this.prefetch();
     }
 }
 
-export default AuthStore;
+export default DomainStore;

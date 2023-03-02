@@ -1,12 +1,12 @@
 import { ThemeProvider } from "@mui/material";
 import { createContext, useState } from "react";
 import { ParentWindow } from "../../messaging/ParentWindow";
-import { IAppStore } from "../../interfaces/appStore";
-import AuthStore from "../../stores/AuthStore";
+import { IAppStore } from "../../interfaces/appStore"; 
 import Layout from "../Layout"; 
+import DomainStore from "../../stores/DomainStore";
 
 const store: IAppStore = {
-  authStore: new AuthStore(),
+  domainStore: new DomainStore(),
   parentWindow: new ParentWindow()
 };
 

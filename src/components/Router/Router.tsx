@@ -12,7 +12,7 @@ function Router() {
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
-      await appStore.authStore.initAccountInfo();
+      await appStore.domainStore.prefetch();
       setIsLoading(false);
     };
     init();
@@ -31,8 +31,8 @@ function Router() {
         </Box>
       ) : (
         <>
-          {!!appStore.authStore.accountInfo &&
-          appStore.authStore.accountInfo !== null ? (
+          {!!appStore.domainStore.accountInfo &&
+          appStore.domainStore.accountInfo !== null ? (
             <Home />
           ) : (
             <Login />

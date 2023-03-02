@@ -34,7 +34,7 @@ function Login() {
           event.preventDefault();
           if (!isLoading) {
             setIsLoading(true);
-            await appStore.authStore.login(apiKey, apiSecret);
+            await appStore.domainStore.login(apiKey, apiSecret);
             setIsLoading(false);
           }
         }}

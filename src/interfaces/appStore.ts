@@ -1,7 +1,7 @@
 import { ParentWindow } from "../messaging/ParentWindow";
-import AuthStore from "../stores/AuthStore";
+import DomainStore from "../stores/DomainStore";
 
 export interface IAppStore {
-    'authStore': AuthStore
+    'domainStore': DomainStore
     'parentWindow': ParentWindow
 }

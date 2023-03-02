@@ -4,6 +4,7 @@ import { AppStoreContext } from "../../components/App/App";
 import { observer } from "mobx-react-lite";
 import { TabPanel, a11yProps } from "./components/TabPanel";
 import BalancesTable from "./components/BalanceTable";
+import OrderList from "./components/OrderList";
 
 function Home() {
   const appStore = useContext(AppStoreContext);
@@ -17,7 +18,7 @@ function Home() {
       setIsLoading(true);
       switch (message.type) {
         case "CRYPTO_BUTTON_CLICKED":
-          await appStore.authStore.initAccountInfo();
+          await appStore.domainStore.prefetch();
           setHtml(message.content.message);
           break;
       }
@@ -49,7 +50,7 @@ function Home() {
         <Button
           disabled={isLoading}
           onClick={async (event) => {
-            await appStore.authStore.logout();
+            await appStore.domainStore.logout();
           }}
           variant="contained"
         >
@@ -62,20 +63,13 @@ function Home() {
         onChange={async (event: React.SyntheticEvent, newValue: number) => {
           setIsLoading(true);
           setTabIndex(newValue);
-          switch (newValue) {
-            case 0:
-              await appStore.authStore.initAccountInfo();
-              break;
-            case 1:
-              //
-              break;
-          }
+          await appStore.domainStore.prefetch();
           setIsLoading(false);
         }}
         aria-label="tabs"
       >
         <Tab label="Balance" {...a11yProps(0)} />
-        <Tab label="Trade History" {...a11yProps(1)} />
+        <Tab label="Orders" {...a11yProps(1)} />
       </Tabs>
       <TabPanel value={tabIndex} index={0}>
         {isLoading ? (
@@ -89,7 +83,7 @@ function Home() {
           </Box>
         ) : (
           <>
-            <BalancesTable accountInfo={appStore.authStore.accountInfo} />
+            <BalancesTable accountInfo={appStore.domainStore.accountInfo} />
           </>
         )}
       </TabPanel>
@@ -104,7 +98,10 @@ function Home() {
             <CircularProgress />
           </Box>
         ) : (
-          <>{html}</>
+          <>
+            <OrderList orders={appStore.domainStore.orders} />
+            {html}
+          </>
         )}
       </TabPanel>
     </>

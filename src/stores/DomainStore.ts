@@ -14,26 +14,36 @@ class DomainStore {
     }
 
     async prefetch() {
-        const info = await apiAccount.accountInfo();
-        if (info !== null) {
-            this.accountInfo = info as AccountInfo;
-            this.orders = await apiSpot.openOrders() as Order[];
-        } else {
-            this.accountInfo = null;
+        const apiKey = localStorage.getItem("apiKey");
+        if (apiKey !== null){
+            const info = await apiAccount.accountInfo();
+            if (info !== null) {
+                this.accountInfo = info as AccountInfo;
+                this.orders = await apiSpot.openOrders() as Order[];
+                return;
+            } 
         }
+        this.orders = null;
+        this.accountInfo = null;
     }
 
     
     async login(apiKey: string, apiSecret: string) { 
         localStorage.setItem("apiKey",  apiKey);
         localStorage.setItem("apiSecret",  apiSecret);
-        await this.prefetch();
+
+        const info = await apiAccount.accountInfo();
+        if (info !== null) {
+            this.accountInfo = info as AccountInfo;
+            this.orders = await apiSpot.openOrders() as Order[];
+        }
     }
 
-    async logout() { 
+    logout() { 
         localStorage.setItem("apiKey",  '');
         localStorage.setItem("apiSecret",  '');
-        await this.prefetch();
+        this.orders = null;
+        this.accountInfo = null;
     }
 }
 

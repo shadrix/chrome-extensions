@@ -48,8 +48,8 @@ function Home() {
         </Button>
         <Button
           disabled={isLoading}
-          onClick={async (event) => {
-            await appStore.domainStore.logout();
+          onClick={(event) => {
+            appStore.domainStore.logout();
           }}
           variant="contained"
         >
